@@ -2,7 +2,6 @@
   "name": "tareas",
   "private": true,
   "scripts": {
-    "dev": "docker compose up --build",
     "db:migrate": "docker compose run --rm migrate",
     "build": "turbo run build",
     "start": "turbo run start",
