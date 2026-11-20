@@ -8,12 +8,14 @@
     "dev:reset": "docker compose down -v",
     "db:migrate": "docker compose run --rm migrate",
     "db:shell": "docker compose exec postgres psql -U postgres -d tareas",
-    "build": "turbo run build && cd apps/backend && task build",
+    "build": "turbo run build",
     "start": "turbo run start",
-    "lint": "turbo run lint && cd apps/backend && task lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\" && cd apps/backend && task format",
-    "check-types": "turbo run check-types && cd apps/backend && task check-types",
-    "test": "turbo run test && cd apps/backend && task test"
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test",
+    "migrate": "docker compose run --rm migrate",
+    "migrations:new": "sh -c 'if [ -z \"${NAME}\" ]; then echo \"Usage: NAME=migration_name bun run migrations:new\"; exit 1; fi; docker run --rm -v \"$(pwd)/apps/backend/internal/database/migrations:/migrations\" migrate/migrate create -ext sql -dir /migrations -seq ${NAME}'"
   },
   "devDependencies": {
     "prettier": "^3.7.4",

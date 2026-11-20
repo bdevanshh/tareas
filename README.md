@@ -100,6 +100,7 @@ cp .env.example .env
 | `bun run dev:down`       | Stop containers                                  |
 | `bun run dev:reset`      | Stop containers and delete all data              |
 | `bun run db:migrate`     | Apply pending migrations                         |
+| `bun run migrations:new`  | Create a new migration (`NAME=foo`)              |
 | `bun run db:shell`       | Open `psql` in the PostgreSQL container          |
 | `bun run build`          | Build all packages                               |
 | `bun run lint`           | Lint all packages                                |
