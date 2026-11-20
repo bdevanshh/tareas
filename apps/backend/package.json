@@ -1,0 +1,11 @@
+{
+  "name": "backend",
+  "private": true,
+  "scripts": {
+    "dev": "go run ./cmd/migrate && go run ./cmd/tareas",
+    "build": "go build -o ./tmp/tareas ./cmd/tareas",
+    "start": "./tmp/tareas",
+    "lint": "go vet ./...",
+    "check-types": "go build ./..."
+  }
+}

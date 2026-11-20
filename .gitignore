@@ -26,6 +26,12 @@ coverage
 out/
 build
 dist
+.output/
+.tanstack/
+.nitro/
+
+# Go build artifacts (air hot reload)
+tmp/
 
 
 # Debug

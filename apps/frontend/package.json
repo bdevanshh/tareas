@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
+    "check-types": "tsc --noEmit",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix"
   },

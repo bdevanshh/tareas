@@ -1,32 +1,218 @@
-services:
-  redis:
-    container_name: tareas-redis
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    networks:
-      - tareas-network
+name: tareas
 
+# Shared backend configuration. These values are safe local-development
+# defaults; override them from your shell or a root .env file when needed.
+x-backend-environment: &backend-environment
+  TAREAS_PRIMARY.ENV: local
+
+  TAREAS_SERVER.PORT: "3001"
+  TAREAS_SERVER.READ_TIMEOUT: "30"
+  TAREAS_SERVER.WRITE_TIMEOUT: "30"
+  TAREAS_SERVER.IDLE_TIMEOUT: "60"
+  TAREAS_SERVER.CORS_ALLOWED_ORIGINS: "http://localhost:3000"
+
+  TAREAS_DATABASE.HOST: postgres
+  TAREAS_DATABASE.PORT: "5432"
+  TAREAS_DATABASE.USER: postgres
+  TAREAS_DATABASE.PASSWORD: secret
+  TAREAS_DATABASE.NAME: tareas
+  TAREAS_DATABASE.SSL_MODE: disable
+  TAREAS_DATABASE.MAX_OPEN_CONNS: "25"
+  TAREAS_DATABASE.MAX_IDLE_CONNS: "25"
+  TAREAS_DATABASE.CONN_MAX_LIFETIME: "300"
+  TAREAS_DATABASE.CONN_MAX_IDLE_TIME: "300"
+
+  # Config validation requires non-empty values. Replace these with real
+  # Clerk/Resend credentials if you need sign-in or email delivery locally.
+  TAREAS_AUTH.SECRET_KEY: sk_test_local_development
+  TAREAS_INTEGRATION.RESEND_API_KEY: re_local_development
+
+  TAREAS_REDIS.ADDRESS: redis:6379
+  TAREAS_REDIS.PASSWORD: ""
+  TAREAS_REDIS.TLS_ENABLED: "false"
+
+  TAREAS_AWS.REGION: us-east-1
+  TAREAS_AWS.ACCESS_KEY_ID: test
+  TAREAS_AWS.SECRET_ACCESS_KEY: test
+  TAREAS_AWS.UPLOAD_BUCKET: tareas-todo-attachments
+  # Backend talks to the container; browsers open presigned URLs on the host.
+  TAREAS_AWS.ENDPOINT_URL: http://seaweedfs:8333
+  TAREAS_AWS.PUBLIC_ENDPOINT_URL: http://localhost:8333
+
+  TAREAS_OBSERVABILITY.SERVICE_NAME: tareas
+  TAREAS_OBSERVABILITY.ENVIRONMENT: development
+  TAREAS_OBSERVABILITY.LOGGING.LEVEL: debug
+  TAREAS_OBSERVABILITY.LOGGING.FORMAT: json
+  TAREAS_OBSERVABILITY.NEW_RELIC.LICENSE_KEY: ""
+  TAREAS_OBSERVABILITY.NEW_RELIC.USER_KEY: ""
+  TAREAS_OBSERVABILITY.NEW_RELIC.APP_LOG_FORWARDING_ENABLED: "true"
+  TAREAS_OBSERVABILITY.NEW_RELIC.DISTRIBUTED_TRACING_ENABLED: "true"
+  TAREAS_OBSERVABILITY.NEW_RELIC.DEBUG_LOGGING: "false"
+
+  TAREAS_CRON.CRON_SECRET: cron_secret
+  TAREAS_CRON.ARCHIVE_DAYS_THRESHOLD: "30"
+  TAREAS_CRON.BATCH_SIZE: "100"
+  TAREAS_CRON.REMINDER_HOURS: "24"
+  TAREAS_CRON.MAX_TODOS_PER_USER_NOTIFICATION: "10"
+
+x-backend-build: &backend-build
+  context: ./apps/backend
+  dockerfile: Dockerfile
+  target: dev
+
+services:
   postgres:
-    container_name: tareas-db
-    image: postgres:latest
-    ports:
-      - "5432:5432"
+    image: postgres:16-alpine
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: tareas
-    networks:
-      - tareas-network
-
-  localstack:
-    container_name: tareas-localstack
-    image: localstack/localstack
     ports:
-      - "4566:4566"
-    environment:
-      - SERVICES=s3
+      - "5432:5432"
     volumes:
-      - ./localstack-setup.sh:/etc/localstack/init/ready.d/script.sh
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tareas"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
-networks:
-  tareas-network:
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Free, S3-compatible object storage. Replaces LocalStack, whose free tier
+  # no longer covers this use case.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.54
+    command: mini -dir=/data -bucket=tareas-todo-attachments
+    environment:
+      # SeaweedFS creates a matching admin identity from these variables.
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+    ports:
+      - "8333:8333" # S3 API
+      - "8888:8888" # Filer UI
+      - "9333:9333" # Master UI
+    volumes:
+      - seaweedfs-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 8333"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    build: *backend-build
+    image: tareas-backend:dev
+    command: go run ./cmd/migrate
+    environment: *backend-environment
+    volumes:
+      - ./apps/backend:/app
+      - go-build-cache:/root/.cache/go-build
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build: *backend-build
+    image: tareas-backend:dev
+    command: air -c .air.toml
+    environment: *backend-environment
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/backend:/app
+      - go-build-cache:/root/.cache/go-build
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3001/status >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  cron:
+    build: *backend-build
+    image: tareas-backend:dev
+    command: go run ./cmd/cron
+    environment: *backend-environment
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./apps/backend:/app
+      - go-build-cache:/root/.cache/go-build
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: dev
+    image: tareas-frontend:dev
+    environment:
+      VITE_API_URL: http://localhost:3001/api/v1
+      # Publishable Clerk keys are public. Override with your own key if needed.
+      VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-pk_test_Z2xvd2luZy1sZWVjaC05LmNsZXJrLmFjY291bnRzLmRldiQ}
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      # Keep container-installed dependencies instead of the host's.
+      - frontend-root-node-modules:/app/node_modules
+      - frontend-app-node-modules:/app/apps/frontend/node_modules
+      - zod-node-modules:/app/packages/zod/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://localhost:3000').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
+  seaweedfs-data:
+  go-build-cache:
+  frontend-root-node-modules:
+  frontend-app-node-modules:
+  zod-node-modules:

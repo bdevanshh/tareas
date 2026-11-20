@@ -14,8 +14,9 @@ import (
 )
 
 type S3Client struct {
-	server *server.Server
-	client *s3.Client
+	server        *server.Server
+	client        *s3.Client
+	presignClient *s3.PresignClient
 }
 
 func NewS3Client(server *server.Server, cfg aws.Config) *S3Client {
@@ -28,9 +29,23 @@ func NewS3Client(server *server.Server, cfg aws.Config) *S3Client {
 		})
 	}
 
+	// Presigned URLs are handed to the browser, so sign them against the
+	// public endpoint when one is configured. This keeps the internal
+	// container hostname out of the URL returned to users.
+	presignOptions := options
+	if server.Config.AWS.PublicEndpointURL != "" {
+		presignOptions = []func(*s3.Options){
+			func(o *s3.Options) {
+				o.BaseEndpoint = aws.String(server.Config.AWS.PublicEndpointURL)
+				o.UsePathStyle = true
+			},
+		}
+	}
+
 	return &S3Client{
-		server: server,
-		client: s3.NewFromConfig(cfg, options...),
+		server:        server,
+		client:        s3.NewFromConfig(cfg, options...),
+		presignClient: s3.NewPresignClient(s3.NewFromConfig(cfg, presignOptions...)),
 	}
 }
 
@@ -57,10 +72,9 @@ func (s *S3Client) UploadFile(ctx context.Context, bucket string, fileName strin
 }
 
 func (s *S3Client) CreatePresignedURL(ctx context.Context, bucket string, objectKey string) (string, error) {
-	presignClient := s3.NewPresignClient(s.client)
 	expiration := time.Minute * 60
 
-	presignedUrl, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+	presignedUrl, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(objectKey),
 	}, s3.WithPresignExpires(expiration))

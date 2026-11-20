@@ -69,6 +69,11 @@ type AWSConfig struct {
 	SecretAccessKey string `koanf:"secret_access_key" validate:"required"`
 	UploadBucket    string `koanf:"upload_bucket" validate:"required"`
 	EndpointURL     string `koanf:"endpoint_url"`
+	// PublicEndpointURL is the S3 endpoint that browsers can reach. It is used
+	// only when signing presigned URLs, which lets containers talk to an
+	// internal S3 service (e.g. http://seaweedfs:8333) while browsers use
+	// http://localhost:8333. Defaults to EndpointURL when empty.
+	PublicEndpointURL string `koanf:"public_endpoint_url"`
 }
 
 type ObservabilityConfig struct {

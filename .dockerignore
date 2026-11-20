@@ -1,0 +1,16 @@
+.git
+.gitignore
+**/node_modules
+**/.turbo
+**/.output
+**/.tanstack
+**/.nitro
+**/dist
+**/coverage
+**/tmp
+**/.env
+**/.env.*
+!**/.env.example
+*.log
+.DS_Store
+.vercel

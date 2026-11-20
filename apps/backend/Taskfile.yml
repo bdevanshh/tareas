@@ -35,3 +35,8 @@ tasks:
       - echo 'Running up migrations...'
       - migrate -source file://./internal/database/migrations -database {{.TAREAS_DB_DSN}} up
     silent: true
+
+  migrate:
+    desc: apply pending migrations using the application config
+    cmds:
+      - go run ./cmd/migrate
