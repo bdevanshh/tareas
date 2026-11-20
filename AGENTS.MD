@@ -88,14 +88,17 @@ bun lint                 # run linter
 bun format               # run code formatter
 ```
 
-Backend-only commands (from `apps/backend`):
+Backend-only commands (from `apps/backend`, run via Docker so no Go is needed
+on the host):
 
 ```bash
-go run ./cmd/migrate     # apply pending migrations
-go run ./cmd/tareas      # run the API on :3001
-go run ./cmd/cron        # run the cron HTTP service on :8080
-go test ./...            # tests (requires Docker for testcontainers)
-task migrations:new name=migration_name   # create a new migration (via Docker)
+task run                 # start the backend container
+task migrate             # apply pending migrations
+task build               # build the backend binary
+task lint                # go vet
+task check-types         # go build ./...
+task test                # go test ./... (uses testcontainers)
+task migrations:new name=migration_name   # create a new migration
 ```
 
 ## Host tooling

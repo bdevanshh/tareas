@@ -2,27 +2,37 @@ version: "3"
 
 tasks:
   build:
-    desc: build the backend binary
+    desc: build the backend binary (via Docker)
     cmds:
-      - go build -o ./tmp/tareas ./cmd/tareas
+      - docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go build -o /tmp/tareas ./cmd/tareas'
 
   lint:
-    desc: run go vet
+    desc: run go vet (via Docker)
     cmds:
-      - go vet ./...
+      - docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go vet ./...'
+
+  check-types:
+    desc: type-check the backend (via Docker)
+    cmds:
+      - docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go build ./...'
+
+  format:
+    desc: format Go source (via Docker)
+    cmds:
+      - docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'gofmt -w .'
 
   test:
-    desc: run all tests
+    desc: run all tests (via Docker)
     cmds:
-      - go test -v ./...
+      - docker compose -f ../../docker-compose.yaml run --rm --no-deps -v /var/run/docker.sock:/var/run/docker.sock backend sh -c 'go test ./...'
 
   run:
-    desc: run the backend application (via Docker)
+    desc: run the backend application
     cmds:
       - docker compose -f ../../docker-compose.yaml up backend
 
   migrations:new:
-    desc: create a new database migration (via Docker, no local migrate binary needed)
+    desc: create a new database migration
     vars:
       NAME: '{{.name | default ""}}'
     cmds:

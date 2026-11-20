@@ -8,11 +8,12 @@
     "dev:reset": "docker compose down -v",
     "db:migrate": "docker compose run --rm migrate",
     "db:shell": "docker compose exec postgres psql -U postgres -d tareas",
-    "build": "turbo run build",
+    "build": "turbo run build && cd apps/backend && task build",
     "start": "turbo run start",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint": "turbo run lint && cd apps/backend && task lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\" && cd apps/backend && task format",
+    "check-types": "turbo run check-types && cd apps/backend && task check-types",
+    "test": "turbo run test && cd apps/backend && task test"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
