@@ -12,6 +12,13 @@ priorities and due dates, comment on them, and attach files.
 Prerequisites: **Docker** with the Compose plugin. Nothing else is required for
 the default setup.
 
+For the optional `task`-based workflows and database migrations outside
+Docker, install the host tooling:
+
+```bash
+./install.sh
+```
+
 ```bash
 bun dev
 # or

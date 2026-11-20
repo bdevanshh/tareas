@@ -97,6 +97,14 @@ go run ./cmd/cron        # run the cron HTTP service on :8080
 go test ./...            # tests (requires Docker for testcontainers)
 ```
 
+## Host tooling
+
+Install `task` and `golang-migrate` for the Taskfile workflows:
+
+```bash
+./install.sh
+```
+
 ## Local Environment (Docker)
 
 `docker compose up --build` starts every service:
