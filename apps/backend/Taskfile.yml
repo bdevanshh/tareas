@@ -1,8 +1,5 @@
 version: "3"
 
-vars:
-  TAREAS_DB_DSN: '{{.TAREAS_DB_DSN | default ""}}'
-
 tasks:
   build:
     desc: build the backend binary
@@ -13,11 +10,6 @@ tasks:
     desc: run go vet
     cmds:
       - go vet ./...
-
-  check-types:
-    desc: type-check by building all packages
-    cmds:
-      - go build ./...
 
   test:
     desc: run all tests
@@ -42,13 +34,6 @@ tasks:
         fi
       - echo 'Creating migration file for {{.NAME}}...'
       - migrate create -ext sql -dir ./internal/database/migrations -seq {{.NAME}}
-    silent: true
-
-  migrations:up:
-    desc: apply all up database migrations
-    cmds:
-      - echo 'Running up migrations...'
-      - migrate -source file://./internal/database/migrations -database {{.TAREAS_DB_DSN}} up
     silent: true
 
   migrate:

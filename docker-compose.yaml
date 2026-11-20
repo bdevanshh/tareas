@@ -71,6 +71,9 @@ services:
     build: *backend-build
     image: tareas-backend:dev
     command: air -c .air.toml
+    environment:
+      GOMEMLIMIT: 1400MiB
+      GOMAXPROCS: "1"
     ports:
       - "3001:3001"
     volumes:

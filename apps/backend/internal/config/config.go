@@ -64,15 +64,11 @@ type AuthConfig struct {
 }
 
 type AWSConfig struct {
-	Region          string `koanf:"region" validate:"required"`
-	AccessKeyID     string `koanf:"access_key_id" validate:"required"`
-	SecretAccessKey string `koanf:"secret_access_key" validate:"required"`
-	UploadBucket    string `koanf:"upload_bucket" validate:"required"`
-	EndpointURL     string `koanf:"endpoint_url"`
-	// PublicEndpointURL is the S3 endpoint that browsers can reach. It is used
-	// only when signing presigned URLs, which lets containers talk to an
-	// internal S3 service (e.g. http://seaweedfs:8333) while browsers use
-	// http://localhost:8333. Defaults to EndpointURL when empty.
+	Region            string `koanf:"region" validate:"required"`
+	AccessKeyID       string `koanf:"access_key_id" validate:"required"`
+	SecretAccessKey   string `koanf:"secret_access_key" validate:"required"`
+	UploadBucket      string `koanf:"upload_bucket" validate:"required"`
+	EndpointURL       string `koanf:"endpoint_url"`
 	PublicEndpointURL string `koanf:"public_endpoint_url"`
 }
 
@@ -108,7 +104,6 @@ func Load() *Config {
 
 	k := koanf.New(".")
 
-	// Load the single root .env (mounted at /app/.env in Docker).
 	_ = godotenv.Load(".env")
 
 	err := k.Load(env.Provider("TAREAS_", ".", func(s string) string {

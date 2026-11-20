@@ -29,9 +29,6 @@ func NewS3Client(server *server.Server, cfg aws.Config) *S3Client {
 		})
 	}
 
-	// Presigned URLs are handed to the browser, so sign them against the
-	// public endpoint when one is configured. This keeps the internal
-	// container hostname out of the URL returned to users.
 	presignOptions := options
 	if server.Config.AWS.PublicEndpointURL != "" {
 		presignOptions = []func(*s3.Options){

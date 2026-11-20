@@ -8,11 +8,6 @@ import (
 	"github.com/DevanshBhavsar3/tareas/internal/logger"
 )
 
-// cmd/migrate applies all pending database migrations using the same
-// configuration as the API server. It is used by docker-compose before the
-// backend and cron services start, and can also be run directly with:
-//
-//	go run ./cmd/migrate
 func main() {
 	cfg := config.Load()
 
