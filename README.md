@@ -15,8 +15,6 @@ the default setup.
 ```bash
 bun dev
 # or
-make dev
-# or
 docker compose up --build
 ```
 
