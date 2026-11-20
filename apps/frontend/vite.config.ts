@@ -10,10 +10,8 @@ import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
-  // Single root .env for the whole monorepo.
   envDir: path.resolve(__dirname, '../..'),
   server: {
-    // Required for the dev server to be reachable when running in Docker.
     host: true,
     port: 3000,
     strictPort: true,
