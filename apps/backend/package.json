@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "docker compose -f ../../docker-compose.yaml up backend",
-    "build": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go build -o /app/tmp/tareas ./cmd/tareas'",
+    "build": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go build -o /app/.output/tareas ./cmd/tareas'",
     "start": "docker compose -f ../../docker-compose.yaml up backend",
     "lint": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go vet ./...'",
     "check-types": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go build ./...'",
