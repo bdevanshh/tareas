@@ -17,9 +17,9 @@ tasks:
       - go test -v ./...
 
   run:
-    desc: run the backend application
+    desc: run the backend application (via Docker)
     cmds:
-      - go run ./cmd/tareas
+      - docker compose -f ../../docker-compose.yaml up backend
 
   migrations:new:
     desc: create a new database migration (via Docker, no local migrate binary needed)
@@ -37,6 +37,6 @@ tasks:
     silent: true
 
   migrate:
-    desc: apply pending migrations (via Docker)
+    desc: apply pending migrations
     cmds:
       - docker compose -f ../../docker-compose.yaml run --rm migrate
