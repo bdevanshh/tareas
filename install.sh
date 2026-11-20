@@ -1,5 +1,4 @@
 # Install the host-side tooling used by the Tareas backend (Taskfile runner).
-# Database migrations are created/run via Docker, so golang-migrate is not needed.
 
 set -euo pipefail
 
