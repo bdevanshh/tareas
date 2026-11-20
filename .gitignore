@@ -14,7 +14,6 @@ node_modules
 
 # Keep example env files tracked
 !**/.env.example
-!**/.env.local.example
 
 # Docker bind-mount artifact (root .env.example mounted into the backend container)
 apps/backend/.env.example

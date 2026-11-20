@@ -79,7 +79,6 @@ Tareas
 
 ```bash
 bun dev                  # start the full stack with Docker (recommended)
-bun dev:host             # infra in Docker + apps on the host with hot reload
 bun dev:logs             # follow container logs
 bun dev:down             # stop containers, keep data
 bun dev:reset            # stop containers and delete local data volumes
@@ -121,11 +120,8 @@ picked up by air and Vite without rebuilding. Rebuild after changing `go.mod`,
 
 ### Environment quirks
 
-- A single root `.env` file is the source of truth for both apps. The backend
-  loads it via `godotenv` (`.env` then `../../.env`, so host dev from
-  `apps/backend` still works); Vite reads it through `envDir` in
-  `vite.config.ts`. Compose only overrides container-only values (DB host,
-  Redis address, S3 endpoint).
+- A single root `.env` file is the source of truth for both apps; Vite reads
+  it through `envDir` in `vite.config.ts`.
 - Backend env vars are prefixed with `TAREAS_` and use **dots** for nesting:
   `TAREAS_SERVER.PORT`, `TAREAS_DATABASE.HOST`, etc. Do not rewrite them
   with underscores.
@@ -150,7 +146,6 @@ LocalStack has been removed. SeaweedFS provides S3 on port 8333 and creates the
 - `TAREAS_AWS.PUBLIC_ENDPOINT_URL=http://localhost:8333` for presigned URLs
   opened by the browser.
 
-When running the backend natively, set both to `http://localhost:8333`.
 
 ### Testing
 

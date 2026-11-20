@@ -65,23 +65,6 @@ locally. The backend talks to `http://seaweedfs:8333` inside the Docker network,
 while presigned download URLs are signed for `http://localhost:8333` so your
 browser can open them.
 
-## Local development without Docker
-
-Useful when you want to run Go or Vite directly on your machine.
-
-Prerequisites: Go 1.25+, Bun 1.3.9+, and Docker (for PostgreSQL, Redis and
-SeaweedFS).
-
-```bash
-cp .env.example .env
-bun install
-bun run dev:host
-```
-
-`dev:host` starts the infrastructure containers, waits for them to become
-healthy, then runs the backend and frontend through Turborepo. The backend
-applies migrations before starting.
-
 ## Configuration
 
 A single root `.env` file (gitignored) holds configuration for both apps. It is
@@ -102,15 +85,12 @@ cp .env.example .env
   to send real email.
 - **S3 credentials** are `test` / `test` locally. The bucket
   `tareas-todo-attachments` is created automatically by SeaweedFS.
-- **Host development** uses `.env.local` (gitignored) to override the three
-  networking values with `localhost`; `bun dev:host` seeds it automatically.
 
 ## Common commands
 
 | Command                  | Description                                      |
 | ------------------------ | ------------------------------------------------ |
 | `bun dev`                | Start the full stack in Docker                   |
-| `bun run dev:host`       | Start infra in Docker, apps on the host          |
 | `bun run dev:logs`       | Follow all container logs                        |
 | `bun run dev:down`       | Stop containers                                  |
 | `bun run dev:reset`      | Stop containers and delete all data              |

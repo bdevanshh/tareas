@@ -108,17 +108,8 @@ func Load() *Config {
 
 	k := koanf.New(".")
 
-	// Load .env from the working directory (Docker: /app) and, as a fallback,
-	// from the repo root (host dev, where the backend runs from apps/backend).
-	// godotenv.Load never overrides variables already present in the environment.
-	for _, f := range []string{".env", "../../.env"} {
-		_ = godotenv.Load(f)
-	}
-	// Host development overrides (localhost networking). Overload takes
-	// precedence over the base .env so host dev keeps working.
-	for _, f := range []string{".env.local", "../../.env.local"} {
-		_ = godotenv.Overload(f)
-	}
+	// Load the single root .env (mounted at /app/.env in Docker).
+	_ = godotenv.Load(".env")
 
 	err := k.Load(env.Provider("TAREAS_", ".", func(s string) string {
 		return strings.ToLower(strings.TrimPrefix(s, "TAREAS_"))
