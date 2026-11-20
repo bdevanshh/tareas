@@ -4,6 +4,21 @@ vars:
   TAREAS_DB_DSN: '{{.TAREAS_DB_DSN | default ""}}'
 
 tasks:
+  build:
+    desc: build the backend binary
+    cmds:
+      - go build -o ./tmp/tareas ./cmd/tareas
+
+  lint:
+    desc: run go vet
+    cmds:
+      - go vet ./...
+
+  check-types:
+    desc: type-check by building all packages
+    cmds:
+      - go build ./...
+
   test:
     desc: run all tests
     cmds:
