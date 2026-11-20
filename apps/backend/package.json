@@ -2,14 +2,14 @@
   "name": "backend",
   "private": true,
   "scripts": {
-    "dev": "docker compose -f ../../docker-compose.yaml up backend",
-    "build": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go build -o /app/.output/tareas ./cmd/tareas'",
-    "start": "docker compose -f ../../docker-compose.yaml up backend",
-    "lint": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go vet ./...'",
-    "check-types": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'go build ./...'",
-    "test": "docker compose -f ../../docker-compose.yaml run --rm --no-deps -v /var/run/docker.sock:/var/run/docker.sock backend sh -c 'go test ./...'",
-    "format": "docker compose -f ../../docker-compose.yaml run --rm --no-deps backend sh -c 'gofmt -w .'",
-    "migrate": "docker compose -f ../../docker-compose.yaml run --rm migrate",
+    "dev": "cd ../.. && docker compose up backend",
+    "build": "cd ../.. && docker compose run --rm --no-deps backend sh -c 'go build -o /app/.output/tareas ./cmd/tareas'",
+    "start": "cd ../.. && docker compose up backend",
+    "lint": "cd ../.. && docker compose run --rm --no-deps backend sh -c 'go vet ./...'",
+    "check-types": "cd ../.. && docker compose run --rm --no-deps backend sh -c 'go build ./...'",
+    "test": "cd ../.. && docker compose run --rm --no-deps -v /var/run/docker.sock:/var/run/docker.sock backend sh -c 'go test ./...'",
+    "format": "cd ../.. && docker compose run --rm --no-deps backend sh -c 'gofmt -w .'",
+    "migrate": "cd ../.. && docker compose run --rm migrate",
     "migrations:new": "sh -c 'if [ -z \"${NAME}\" ]; then echo \"Usage: NAME=migration_name bun run migrations:new\"; exit 1; fi; docker run --rm -v \"$(pwd)/internal/database/migrations:/migrations\" migrate/migrate create -ext sql -dir /migrations -seq ${NAME}'"
   }
 }
