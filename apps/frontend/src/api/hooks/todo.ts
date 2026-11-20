@@ -7,7 +7,7 @@ import type {
   Todo,
   TodoStats,
   UpdateTodoPayload,
-  type PaginatedResponse,
+  PaginatedResponse,
 } from '@tareas/zod'
 import type z from 'zod'
 import { useApiClient } from '../index'
