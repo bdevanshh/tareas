@@ -1,14 +1,6 @@
 name: tareas
-
-# Container-only overrides for the single root .env (which keeps localhost
-# defaults for host development). Everything else comes from .env.
-x-docker-overrides: &docker-overrides
-  # Container-only overrides for the single root .env (which keeps
-  # localhost defaults for host development).
-  TAREAS_DATABASE.HOST: postgres
-  TAREAS_REDIS.ADDRESS: redis:6379
-  TAREAS_AWS.ENDPOINT_URL: http://seaweedfs:8333
-
+# Everything comes from the single root .env (container hostnames). For host
+# development, .env.local overrides the networking values.
 x-backend-build: &backend-build
   context: ./apps/backend
   dockerfile: Dockerfile
@@ -71,10 +63,12 @@ services:
   migrate:
     build: *backend-build
     image: tareas-backend:dev
-    environment: *docker-overrides
     command: go run ./cmd/migrate
     volumes:
       - ./apps/backend:/app
+      # Single root .env is the source of truth (mounted over /app/.env).
+      - ./.env:/app/.env
+      - ./.env.example:/app/.env.example
       - go-build-cache:/root/.cache/go-build
     depends_on:
       postgres:
@@ -84,12 +78,14 @@ services:
   backend:
     build: *backend-build
     image: tareas-backend:dev
-    environment: *docker-overrides
     command: air -c .air.toml
     ports:
       - "3001:3001"
     volumes:
       - ./apps/backend:/app
+      # Single root .env is the source of truth (mounted over /app/.env).
+      - ./.env:/app/.env
+      - ./.env.example:/app/.env.example
       - go-build-cache:/root/.cache/go-build
     depends_on:
       migrate:
@@ -111,12 +107,14 @@ services:
   cron:
     build: *backend-build
     image: tareas-backend:dev
-    environment: *docker-overrides
     command: go run ./cmd/cron
     ports:
       - "8080:8080"
     volumes:
       - ./apps/backend:/app
+      # Single root .env is the source of truth (mounted over /app/.env).
+      - ./.env:/app/.env
+      - ./.env.example:/app/.env.example
       - go-build-cache:/root/.cache/go-build
     depends_on:
       migrate:

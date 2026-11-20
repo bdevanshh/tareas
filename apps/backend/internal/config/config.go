@@ -114,6 +114,11 @@ func Load() *Config {
 	for _, f := range []string{".env", "../../.env"} {
 		_ = godotenv.Load(f)
 	}
+	// Host development overrides (localhost networking). Overload takes
+	// precedence over the base .env so host dev keeps working.
+	for _, f := range []string{".env.local", "../../.env.local"} {
+		_ = godotenv.Overload(f)
+	}
 
 	err := k.Load(env.Provider("TAREAS_", ".", func(s string) string {
 		return strings.ToLower(strings.TrimPrefix(s, "TAREAS_"))

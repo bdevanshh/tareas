@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "docker compose up --build",
-    "dev:host": "docker compose up -d --wait postgres redis seaweedfs && turbo run dev",
+    "dev:host": "([ -f .env.local ] || cp .env.local.example .env.local) && docker compose up -d --wait postgres redis seaweedfs && turbo run dev",
     "dev:down": "docker compose down",
     "dev:logs": "docker compose logs -f",
     "dev:reset": "docker compose down -v",

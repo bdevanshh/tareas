@@ -102,6 +102,8 @@ cp .env.example .env
   to send real email.
 - **S3 credentials** are `test` / `test` locally. The bucket
   `tareas-todo-attachments` is created automatically by SeaweedFS.
+- **Host development** uses `.env.local` (gitignored) to override the three
+  networking values with `localhost`; `bun dev:host` seeds it automatically.
 
 ## Common commands
 
