@@ -104,7 +104,7 @@ func Load() *Config {
 
 	k := koanf.New(".")
 
-	_ = godotenv.Load(".env")
+	_ = godotenv.Load(".env", "../../.env")
 
 	err := k.Load(env.Provider("TAREAS_", ".", func(s string) string {
 		return strings.ToLower(strings.TrimPrefix(s, "TAREAS_"))

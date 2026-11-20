@@ -37,6 +37,6 @@ tasks:
     silent: true
 
   migrate:
-    desc: apply pending migrations using the application config
+    desc: apply pending migrations (via Docker)
     cmds:
-      - go run ./cmd/migrate
+      - docker compose -f ../../docker-compose.yaml run --rm migrate
