@@ -22,7 +22,7 @@ tasks:
       - go run ./cmd/tareas
 
   migrations:new:
-    desc: create a new database migration
+    desc: create a new database migration (via Docker, no local migrate binary needed)
     vars:
       NAME: '{{.name | default ""}}'
     cmds:
@@ -33,7 +33,7 @@ tasks:
           exit 1
         fi
       - echo 'Creating migration file for {{.NAME}}...'
-      - migrate create -ext sql -dir ./internal/database/migrations -seq {{.NAME}}
+      - docker run --rm -v "$(pwd)/internal/database/migrations:/migrations" migrate/migrate create -ext sql -dir /migrations -seq {{.NAME}}
     silent: true
 
   migrate:

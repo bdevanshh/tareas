@@ -95,6 +95,7 @@ go run ./cmd/migrate     # apply pending migrations
 go run ./cmd/tareas      # run the API on :3001
 go run ./cmd/cron        # run the cron HTTP service on :8080
 go test ./...            # tests (requires Docker for testcontainers)
+task migrations:new name=migration_name   # create a new migration (via Docker)
 ```
 
 ## Host tooling
