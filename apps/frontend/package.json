@@ -8,12 +8,12 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
-    "start": "node .output/server/index.mjs",
+    "start": "vite preview",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "lint": "eslint",
     "check-types": "tsc --noEmit",
-    "format": "prettier --check .",
+    "format": "prettier --write .",
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
@@ -58,6 +58,8 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.2.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^28.1.0",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",

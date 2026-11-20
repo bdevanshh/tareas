@@ -31,8 +31,10 @@ import {
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
-  type TCreateCategoryPayload,
-  type TUpdateCategoryPayload,
+} from '#/api/hooks/category'
+import type {
+  TCreateCategoryPayload,
+  TUpdateCategoryPayload,
 } from '#/api/hooks/category'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { QUERY_KEYS } from '../query-keys'
-import {
+import type {
   CreateTodoPayload,
   GetTodosPayload,
   PopulatedTodo,
@@ -9,7 +9,7 @@ import {
   UpdateTodoPayload,
   type PaginatedResponse,
 } from '@tareas/zod'
-import z from 'zod'
+import type z from 'zod'
 import { useApiClient } from '../index'
 import { showApiErrorToast } from '../utils'
 

@@ -25,7 +25,8 @@ import {
 } from '#/components/ui/popover'
 import { Progress } from '#/components/ui/progress'
 import { useGetAllCategories } from '#/api/hooks/category'
-import { useCreateTodo, type TCreateTodoPayload } from '#/api/hooks/todo'
+import { useCreateTodo } from '#/api/hooks/todo'
+import type { TCreateTodoPayload } from '#/api/hooks/todo'
 import { AttachmentSection } from '#/components/todos'
 import type { PopulatedTodo } from '@tareas/zod'
 import { useState, useMemo, useCallback } from 'react'
@@ -218,7 +219,7 @@ export default function CreateTaskWizard({
                 <Label>Priority</Label>
                 <Select
                   value={priority}
-                  onValueChange={(v) => v && setPriority(v as typeof priority)}
+                  onValueChange={(v) => v && setPriority(v)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select priority">

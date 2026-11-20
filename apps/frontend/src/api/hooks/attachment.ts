@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApiClient } from '../index'
 import { QUERY_KEYS } from '../query-keys'
-import { GetTodoAttachmentURLResponse, TodoAttachment } from '@tareas/zod'
+import type { GetTodoAttachmentURLResponse, TodoAttachment } from '@tareas/zod'
 import type z from 'zod'
 import { showApiErrorToast } from '../utils'
 
