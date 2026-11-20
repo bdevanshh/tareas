@@ -3,7 +3,6 @@
   "private": true,
   "scripts": {
     "dev": "docker compose up --build",
-    "dev:down": "docker compose down",
     "db:migrate": "docker compose run --rm migrate",
     "build": "turbo run build",
     "start": "turbo run start",
