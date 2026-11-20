@@ -1,6 +1,5 @@
 .PHONY: dev up down logs reset migrate db-shell build test
 
-# Start the entire stack (database, cache, object storage, API, cron, frontend).
 dev:
 	docker compose up --build
 
@@ -25,6 +24,5 @@ db-shell:
 build:
 	docker compose build
 
-# Backend tests use testcontainers and therefore need a Docker daemon.
 test:
 	cd apps/backend && go test ./...

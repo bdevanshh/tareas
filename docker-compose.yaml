@@ -1,6 +1,4 @@
 name: tareas
-# Everything comes from the single root .env (container hostnames). For host
-# development, .env.local overrides the networking values.
 x-backend-build: &backend-build
   context: ./apps/backend
   dockerfile: Dockerfile
@@ -38,13 +36,10 @@ services:
       retries: 10
     restart: unless-stopped
 
-  # Free, S3-compatible object storage. Replaces LocalStack, whose free tier
-  # no longer covers this use case.
   seaweedfs:
     image: chrislusf/seaweedfs:4.54
     command: mini -dir=/data -bucket=tareas-todo-attachments
     environment:
-      # SeaweedFS creates a matching admin identity from these variables.
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
     ports:
@@ -66,10 +61,7 @@ services:
     command: go run ./cmd/migrate
     volumes:
       - ./apps/backend:/app
-      # Single root .env is the source of truth (mounted over /app/.env).
       - ./.env:/app/.env
-      - ./.env.example:/app/.env.example
-      - go-build-cache:/root/.cache/go-build
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,10 +75,7 @@ services:
       - "3001:3001"
     volumes:
       - ./apps/backend:/app
-      # Single root .env is the source of truth (mounted over /app/.env).
       - ./.env:/app/.env
-      - ./.env.example:/app/.env.example
-      - go-build-cache:/root/.cache/go-build
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -112,10 +101,7 @@ services:
       - "8080:8080"
     volumes:
       - ./apps/backend:/app
-      # Single root .env is the source of truth (mounted over /app/.env).
       - ./.env:/app/.env
-      - ./.env.example:/app/.env.example
-      - go-build-cache:/root/.cache/go-build
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -135,10 +121,6 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-      # Keep container-installed dependencies instead of the host's.
-      - frontend-root-node-modules:/app/node_modules
-      - frontend-app-node-modules:/app/apps/frontend/node_modules
-      - zod-node-modules:/app/packages/zod/node_modules
     depends_on:
       backend:
         condition: service_healthy
@@ -160,7 +142,3 @@ volumes:
   postgres-data:
   redis-data:
   seaweedfs-data:
-  go-build-cache:
-  frontend-root-node-modules:
-  frontend-app-node-modules:
-  zod-node-modules:
