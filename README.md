@@ -73,8 +73,7 @@ Prerequisites: Go 1.25+, Bun 1.3.9+, and Docker (for PostgreSQL, Redis and
 SeaweedFS).
 
 ```bash
-cp apps/backend/.env.example apps/backend/.env
-cp apps/frontend/.env.example apps/frontend/.env
+cp .env.example .env
 bun install
 bun run dev:host
 ```
@@ -85,21 +84,22 @@ applies migrations before starting.
 
 ## Configuration
 
-Development defaults live in `docker-compose.yaml`, so no `.env` file is needed
-for the Docker setup.
+A single root `.env` file (gitignored) holds configuration for both apps. It is
+created automatically from `.env.example` on the first Docker run; copy it by
+hand for host development:
+
+```bash
+cp .env.example .env
+```
 
 - **Backend env names use dots**, for example `TAREAS_SERVER.PORT`. This is
   intentional: `koanf` maps them to nested config keys. Do not rewrite them with
   underscores.
-- **Clerk** is used for authentication. The compose default is a public Clerk
-  test publishable key. Override it with a root `.env` file:
-  ```bash
-  VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key
-  ```
-  The backend also needs a real `TAREAS_AUTH.SECRET_KEY` for authenticated API
-  calls; the compose value is a dummy that only lets the app boot.
-- **Resend** sends email from cron jobs. The compose value is a dummy; set
-  `TAREAS_INTEGRATION.RESEND_API_KEY` to send real email.
+- **Clerk** is used for authentication. Set `VITE_CLERK_PUBLISHABLE_KEY` and
+  `TAREAS_AUTH.SECRET_KEY` from the *same* Clerk application. The example values
+  point at Clerk's public test instance and only let the app boot.
+- **Resend** sends email from cron jobs. Set `TAREAS_INTEGRATION.RESEND_API_KEY`
+  to send real email.
 - **S3 credentials** are `test` / `test` locally. The bucket
   `tareas-todo-attachments` is created automatically by SeaweedFS.
 
@@ -141,6 +141,9 @@ bun --cwd apps/frontend test
 - **Sign-in does not work**: replace the dummy Clerk keys as described above.
 - **Attachments fail to upload**: check the SeaweedFS container is healthy and
   the bucket exists at http://localhost:8888.
+- **Changed `.env` but nothing happened**: the backend reads `.env` at process
+  start and air only watches `.go` files; run `docker compose restart backend`.
+  Vite reads env at startup too, so run `docker compose restart frontend`.
 - **`bun run lint` fails with `eslint: command not found`**: this is
   pre-existing. `eslint` is not declared in `apps/frontend/package.json`, so run
   `bun add -d eslint` inside `apps/frontend` to fix it (this updates

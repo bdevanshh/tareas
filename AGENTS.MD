@@ -121,12 +121,17 @@ picked up by air and Vite without rebuilding. Rebuild after changing `go.mod`,
 
 ### Environment quirks
 
+- A single root `.env` file is the source of truth for both apps. The backend
+  loads it via `godotenv` (`.env` then `../../.env`, so host dev from
+  `apps/backend` still works); Vite reads it through `envDir` in
+  `vite.config.ts`. Compose only overrides container-only values (DB host,
+  Redis address, S3 endpoint).
 - Backend env vars are prefixed with `TAREAS_` and use **dots** for nesting:
-  `TAREAS_SERVER.PORT`, `TAREAS_DATABASE.HOST`, etc. Compose sets these directly;
-  `.env` files use the same dotted names.
-- The backend refuses to start if required config values are empty. The example
-  file and compose provide dummy Clerk/Resend values so the app boots without
-  external accounts. Real sign-in and email need real keys.
+  `TAREAS_SERVER.PORT`, `TAREAS_DATABASE.HOST`, etc. Do not rewrite them
+  with underscores.
+- The backend refuses to start if required config values are empty. The root
+  `.env.example` provides dummy Clerk/Resend values so the app boots without
+  external accounts. Real sign-in and email need real keys (set them in `.env`).
 - `TAREAS_PRIMARY.ENV=local` skips automatic migrations in the API binary, which
   is why migrations are a separate compose service. Do not remove that service.
 - The frontend Vite server must listen on `0.0.0.0` inside Docker; this is set in

@@ -12,8 +12,12 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
+COPY apps/frontend/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 WORKDIR /app/apps/frontend
 
 EXPOSE 3000
 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["bun", "--bun", "run", "dev"]

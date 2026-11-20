@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/go-playground/validator/v10"
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/joho/godotenv"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/v2"
 	"github.com/rs/zerolog"
@@ -107,6 +107,13 @@ func Load() *Config {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
 
 	k := koanf.New(".")
+
+	// Load .env from the working directory (Docker: /app) and, as a fallback,
+	// from the repo root (host dev, where the backend runs from apps/backend).
+	// godotenv.Load never overrides variables already present in the environment.
+	for _, f := range []string{".env", "../../.env"} {
+		_ = godotenv.Load(f)
+	}
 
 	err := k.Load(env.Provider("TAREAS_", ".", func(s string) string {
 		return strings.ToLower(strings.TrimPrefix(s, "TAREAS_"))

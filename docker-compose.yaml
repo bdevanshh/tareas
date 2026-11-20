@@ -1,59 +1,13 @@
 name: tareas
 
-# Shared backend configuration. These values are safe local-development
-# defaults; override them from your shell or a root .env file when needed.
-x-backend-environment: &backend-environment
-  TAREAS_PRIMARY.ENV: local
-
-  TAREAS_SERVER.PORT: "3001"
-  TAREAS_SERVER.READ_TIMEOUT: "30"
-  TAREAS_SERVER.WRITE_TIMEOUT: "30"
-  TAREAS_SERVER.IDLE_TIMEOUT: "60"
-  TAREAS_SERVER.CORS_ALLOWED_ORIGINS: "http://localhost:3000"
-
+# Container-only overrides for the single root .env (which keeps localhost
+# defaults for host development). Everything else comes from .env.
+x-docker-overrides: &docker-overrides
+  # Container-only overrides for the single root .env (which keeps
+  # localhost defaults for host development).
   TAREAS_DATABASE.HOST: postgres
-  TAREAS_DATABASE.PORT: "5432"
-  TAREAS_DATABASE.USER: postgres
-  TAREAS_DATABASE.PASSWORD: secret
-  TAREAS_DATABASE.NAME: tareas
-  TAREAS_DATABASE.SSL_MODE: disable
-  TAREAS_DATABASE.MAX_OPEN_CONNS: "25"
-  TAREAS_DATABASE.MAX_IDLE_CONNS: "25"
-  TAREAS_DATABASE.CONN_MAX_LIFETIME: "300"
-  TAREAS_DATABASE.CONN_MAX_IDLE_TIME: "300"
-
-  # Config validation requires non-empty values. Replace these with real
-  # Clerk/Resend credentials if you need sign-in or email delivery locally.
-  TAREAS_AUTH.SECRET_KEY: sk_test_local_development
-  TAREAS_INTEGRATION.RESEND_API_KEY: re_local_development
-
   TAREAS_REDIS.ADDRESS: redis:6379
-  TAREAS_REDIS.PASSWORD: ""
-  TAREAS_REDIS.TLS_ENABLED: "false"
-
-  TAREAS_AWS.REGION: us-east-1
-  TAREAS_AWS.ACCESS_KEY_ID: test
-  TAREAS_AWS.SECRET_ACCESS_KEY: test
-  TAREAS_AWS.UPLOAD_BUCKET: tareas-todo-attachments
-  # Backend talks to the container; browsers open presigned URLs on the host.
   TAREAS_AWS.ENDPOINT_URL: http://seaweedfs:8333
-  TAREAS_AWS.PUBLIC_ENDPOINT_URL: http://localhost:8333
-
-  TAREAS_OBSERVABILITY.SERVICE_NAME: tareas
-  TAREAS_OBSERVABILITY.ENVIRONMENT: development
-  TAREAS_OBSERVABILITY.LOGGING.LEVEL: debug
-  TAREAS_OBSERVABILITY.LOGGING.FORMAT: json
-  TAREAS_OBSERVABILITY.NEW_RELIC.LICENSE_KEY: ""
-  TAREAS_OBSERVABILITY.NEW_RELIC.USER_KEY: ""
-  TAREAS_OBSERVABILITY.NEW_RELIC.APP_LOG_FORWARDING_ENABLED: "true"
-  TAREAS_OBSERVABILITY.NEW_RELIC.DISTRIBUTED_TRACING_ENABLED: "true"
-  TAREAS_OBSERVABILITY.NEW_RELIC.DEBUG_LOGGING: "false"
-
-  TAREAS_CRON.CRON_SECRET: cron_secret
-  TAREAS_CRON.ARCHIVE_DAYS_THRESHOLD: "30"
-  TAREAS_CRON.BATCH_SIZE: "100"
-  TAREAS_CRON.REMINDER_HOURS: "24"
-  TAREAS_CRON.MAX_TODOS_PER_USER_NOTIFICATION: "10"
 
 x-backend-build: &backend-build
   context: ./apps/backend
@@ -117,8 +71,8 @@ services:
   migrate:
     build: *backend-build
     image: tareas-backend:dev
+    environment: *docker-overrides
     command: go run ./cmd/migrate
-    environment: *backend-environment
     volumes:
       - ./apps/backend:/app
       - go-build-cache:/root/.cache/go-build
@@ -130,8 +84,8 @@ services:
   backend:
     build: *backend-build
     image: tareas-backend:dev
+    environment: *docker-overrides
     command: air -c .air.toml
-    environment: *backend-environment
     ports:
       - "3001:3001"
     volumes:
@@ -157,8 +111,8 @@ services:
   cron:
     build: *backend-build
     image: tareas-backend:dev
+    environment: *docker-overrides
     command: go run ./cmd/cron
-    environment: *backend-environment
     ports:
       - "8080:8080"
     volumes:
@@ -179,10 +133,6 @@ services:
       dockerfile: apps/frontend/Dockerfile
       target: dev
     image: tareas-frontend:dev
-    environment:
-      VITE_API_URL: http://localhost:3001/api/v1
-      # Publishable Clerk keys are public. Override with your own key if needed.
-      VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-pk_test_Z2xvd2luZy1sZWVjaC05LmNsZXJrLmFjY291bnRzLmRldiQ}
     ports:
       - "3000:3000"
     volumes:

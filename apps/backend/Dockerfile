@@ -14,8 +14,13 @@ RUN go mod download
 
 COPY . .
 
+# Entrypoint lives outside /app so the bind mount does not shadow it.
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 ENV PATH="/go/bin:${PATH}"
 
 EXPOSE 3001 8080
 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["air", "-c", ".air.toml"]
