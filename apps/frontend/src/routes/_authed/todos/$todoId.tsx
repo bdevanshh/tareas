@@ -16,11 +16,8 @@ import {
 } from '#/components/ui/alert-dialog'
 import { CommentSection, AttachmentSection, TodoForm } from '#/components/todos'
 import { useApiClient } from '#/api/index'
-import {
-  useUpdateTodo,
-  useDeleteTodo,
-  type TUpdateTodoPayload,
-} from '#/api/hooks/todo'
+import { useUpdateTodo, useDeleteTodo } from '#/api/hooks/todo'
+import type { TUpdateTodoPayload } from '#/api/hooks/todo'
 import { QUERY_KEYS } from '#/api/query-keys'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
@@ -318,11 +315,11 @@ function TodoPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="comments" className="gap-2">
               <HugeiconsIcon icon={Comment01Icon} size={14} />
-              Comments ({todo.comments?.length ?? 0})
+              Comments ({todo.comments.length})
             </TabsTrigger>
             <TabsTrigger value="attachments" className="gap-2">
               <HugeiconsIcon icon={AttachmentIcon} size={14} />
-              Attachments ({todo.attachments?.length ?? 0})
+              Attachments ({todo.attachments.length})
             </TabsTrigger>
           </TabsList>
 
@@ -333,7 +330,7 @@ function TodoPage() {
           <TabsContent value="attachments">
             <AttachmentSection
               todoId={todo.id}
-              initialAttachments={todo.attachments ?? []}
+              initialAttachments={todo.attachments}
             />
           </TabsContent>
         </Tabs>

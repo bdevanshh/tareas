@@ -36,15 +36,17 @@ import {
   useUpdateTodo,
   useDeleteTodo,
   useGetTodoStats,
-  type TUpdateTodoPayload,
 } from '#/api/hooks/todo'
+import type { TUpdateTodoPayload } from '#/api/hooks/todo'
 import {
   useGetAllCategories,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
-  type TCreateCategoryPayload,
-  type TUpdateCategoryPayload,
+} from '#/api/hooks/category'
+import type {
+  TCreateCategoryPayload,
+  TUpdateCategoryPayload,
 } from '#/api/hooks/category'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'

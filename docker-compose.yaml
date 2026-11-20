@@ -1,32 +1,148 @@
-services:
-  redis:
-    container_name: tareas-redis
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    networks:
-      - tareas-network
+name: tareas
+x-backend-build: &backend-build
+  context: ./apps/backend
+  dockerfile: Dockerfile
+  target: dev
 
+services:
   postgres:
-    container_name: tareas-db
-    image: postgres:latest
-    ports:
-      - "5432:5432"
+    image: postgres:16-alpine
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: tareas
-    networks:
-      - tareas-network
-
-  localstack:
-    container_name: tareas-localstack
-    image: localstack/localstack
     ports:
-      - "4566:4566"
-    environment:
-      - SERVICES=s3
+      - "5432:5432"
     volumes:
-      - ./localstack-setup.sh:/etc/localstack/init/ready.d/script.sh
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tareas"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
-networks:
-  tareas-network:
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.54
+    command: mini -dir=/data -bucket=tareas-todo-attachments
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+    ports:
+      - "8333:8333" # S3 API
+      - "8888:8888" # Filer UI
+      - "9333:9333" # Master UI
+    volumes:
+      - seaweedfs-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 8333"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    build: *backend-build
+    image: tareas-backend:dev
+    command: go run ./cmd/migrate
+    volumes:
+      - ./apps/backend:/app
+      - ./.env:/app/.env
+      - go-build-cache:/root/.cache/go-build
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build: *backend-build
+    image: tareas-backend:dev
+    command: air -c .air.toml
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/backend:/app
+      - ./.env:/app/.env
+      - go-build-cache:/root/.cache/go-build
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3001/status >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  cron:
+    build: *backend-build
+    image: tareas-backend:dev
+    command: go run ./cmd/cron
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./apps/backend:/app
+      - ./.env:/app/.env
+      - go-build-cache:/root/.cache/go-build
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: dev
+    image: tareas-frontend:dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://localhost:3000').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
+  seaweedfs-data:
+  go-build-cache:

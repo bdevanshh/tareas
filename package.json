@@ -2,12 +2,13 @@
   "name": "tareas",
   "private": true,
   "scripts": {
+    "db:migrate": "docker compose run --rm migrate",
     "build": "turbo run build",
-    "dev": "turbo run dev",
     "start": "turbo run start",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "format": "turbo run format",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test"
   },
   "devDependencies": {
     "prettier": "^3.7.4",

@@ -80,8 +80,8 @@ export default function TodoItem({
   const overdue = checkOverdue(todo.dueDate, todo.status)
   const dueToday = isDueToday(todo.dueDate)
   const dueDateText = todo.dueDate ? formatCalendarDate(todo.dueDate) : null
-  const hasAttachments = todo.attachments && todo.attachments.length > 0
-  const hasComments = todo.comments && todo.comments.length > 0
+  const hasAttachments = todo.attachments.length > 0
+  const hasComments = todo.comments.length > 0
 
   return (
     <div
@@ -197,7 +197,7 @@ export default function TodoItem({
           {hasComments && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <HugeiconsIcon icon={Comment01Icon} size={12} />
-              {todo.comments!.length}
+              {todo.comments.length}
             </span>
           )}
 
@@ -205,7 +205,7 @@ export default function TodoItem({
           {hasAttachments && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <HugeiconsIcon icon={AttachmentIcon} size={12} />
-              {todo.attachments!.length}
+              {todo.attachments.length}
             </span>
           )}
         </div>

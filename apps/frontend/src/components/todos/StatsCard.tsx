@@ -1,5 +1,6 @@
 import { Card, CardContent } from '#/components/ui/card'
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import type { IconSvgElement } from '@hugeicons/react'
 
 type StatsCardProps = {
   label: string

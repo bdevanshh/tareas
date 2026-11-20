@@ -12,6 +12,12 @@ node_modules
 .env.test.local
 .env.production.local
 
+# Keep example env files tracked
+!**/.env.example
+
+# Docker bind-mount artifact (root .env.example mounted into the backend container)
+apps/backend/.env.example
+
 # Testing
 coverage
 
@@ -26,6 +32,12 @@ coverage
 out/
 build
 dist
+.output/
+.tanstack/
+.nitro/
+
+# Go build artifacts (air hot reload)
+tmp/
 
 
 # Debug

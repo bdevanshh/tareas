@@ -6,7 +6,7 @@ import type {
   TodoComment,
   UpdateCommentPayload,
 } from '@tareas/zod'
-import z from 'zod'
+import type z from 'zod'
 import { showApiErrorToast } from '../utils'
 
 type TGetCommentsByTodoIdResponse = z.infer<typeof TodoComment>[]
@@ -140,7 +140,7 @@ export function useDeleteComment() {
       return { todoId }
     },
     onSuccess: (_, __, context) => {
-      if (context?.todoId) {
+      if (context.todoId) {
         queryClient.invalidateQueries({
           queryKey: [
             QUERY_KEYS.COMMENTS.GET_COMMENTS_BY_TODO_ID,

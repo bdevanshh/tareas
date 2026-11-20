@@ -199,7 +199,7 @@ export default function TodoForm({
               <Label>Priority</Label>
               <Select
                 value={priority}
-                onValueChange={(v) => v && setPriority(v as typeof priority)}
+                onValueChange={(v) => v && setPriority(v)}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select priority">
@@ -236,10 +236,7 @@ export default function TodoForm({
             {isEditing && (
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select
-                  value={status}
-                  onValueChange={(v) => v && setStatus(v as typeof status)}
-                >
+                <Select value={status} onValueChange={(v) => v && setStatus(v)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select status">
                       <span className="flex items-center gap-2">

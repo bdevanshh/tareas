@@ -25,7 +25,8 @@ import {
 import { Skeleton } from '#/components/ui/skeleton'
 import { cn } from '#/lib/utils'
 import type { TodoAttachment, PopulatedTodo } from '@tareas/zod'
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import type { IconSvgElement } from '@hugeicons/react'
 import {
   Upload01Icon,
   Delete01Icon,

@@ -123,11 +123,11 @@ export default function TodoDetail({ todo, isOpen, onClose }: TodoDetailProps) {
               <TabsList className="w-full">
                 <TabsTrigger value="comments" className="flex-1 gap-2">
                   <HugeiconsIcon icon={Comment01Icon} size={14} />
-                  Comments ({todo.comments?.length ?? 0})
+                  Comments ({todo.comments.length})
                 </TabsTrigger>
                 <TabsTrigger value="attachments" className="flex-1 gap-2">
                   <HugeiconsIcon icon={AttachmentIcon} size={14} />
-                  Files ({todo.attachments?.length ?? 0})
+                  Files ({todo.attachments.length})
                 </TabsTrigger>
               </TabsList>
 
@@ -138,7 +138,7 @@ export default function TodoDetail({ todo, isOpen, onClose }: TodoDetailProps) {
               <TabsContent value="attachments" className="mt-4">
                 <AttachmentSection
                   todoId={todo.id}
-                  initialAttachments={todo.attachments ?? []}
+                  initialAttachments={todo.attachments}
                 />
               </TabsContent>
             </Tabs>

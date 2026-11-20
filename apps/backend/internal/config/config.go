@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/go-playground/validator/v10"
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/joho/godotenv"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/v2"
 	"github.com/rs/zerolog"
@@ -64,11 +64,12 @@ type AuthConfig struct {
 }
 
 type AWSConfig struct {
-	Region          string `koanf:"region" validate:"required"`
-	AccessKeyID     string `koanf:"access_key_id" validate:"required"`
-	SecretAccessKey string `koanf:"secret_access_key" validate:"required"`
-	UploadBucket    string `koanf:"upload_bucket" validate:"required"`
-	EndpointURL     string `koanf:"endpoint_url"`
+	Region            string `koanf:"region" validate:"required"`
+	AccessKeyID       string `koanf:"access_key_id" validate:"required"`
+	SecretAccessKey   string `koanf:"secret_access_key" validate:"required"`
+	UploadBucket      string `koanf:"upload_bucket" validate:"required"`
+	EndpointURL       string `koanf:"endpoint_url"`
+	PublicEndpointURL string `koanf:"public_endpoint_url"`
 }
 
 type ObservabilityConfig struct {
@@ -102,6 +103,8 @@ func Load() *Config {
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
 
 	k := koanf.New(".")
+
+	_ = godotenv.Load(".env", "../../.env")
 
 	err := k.Load(env.Provider("TAREAS_", ".", func(s string) string {
 		return strings.ToLower(strings.TrimPrefix(s, "TAREAS_"))
